@@ -1,4 +1,4 @@
-import conexion from './conexion.js';
+const conexion = require('./conexion');
 
 const express = require("express");
 const { Sequelize, DataTypes } = require("sequelize");
@@ -29,7 +29,7 @@ if (process.env.NODE_ENV === 'production' || process.env.DATABASE_SSL === 'true'
 
 // const sequelize = new Sequelize(process.env.DATABASE_URL, connectionOptions);
 
-const Pelicula = conexion.sequelize.define("Pelicula", {
+const Pelicula = conexion.define("Pelicula", {
     titulo: {
         type: DataTypes.STRING,
         allowNull: false
