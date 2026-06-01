@@ -48,10 +48,25 @@ app.get("/peliculas", async (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 
-app.listen(PORT, () => {
-    console.log(`Servidor en http://localhost:${PORT}`);
-});
-
 app.get("/", async (req, res) => {
     res.send("¡Bienvenido a la API de Películas!");
 });
+
+async function iniciarServidor() {
+    try {
+        await conexion.authenticate();
+        console.log('Conexión exitosa a PostgreSQL');
+
+        await conexion.sync();
+        console.log('Tablas sincronizadas');
+
+        app.listen(PORT, () => {
+            console.log(`Servidor en http://localhost:${PORT}`);
+        });
+
+    } catch (error) {
+        console.error('Error de conexión:', error);
+    }
+}
+
+iniciarServidor();
