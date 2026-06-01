@@ -6,12 +6,12 @@ const bcrypt = require("bcrypt");
 const app = express();
 app.use(express.json());
 
-const SECRET_KEY = process.env.SECRET_KEY;
+// const SECRET_KEY = process.env.SECRET_KEY;
 
-if (process.env.NODE_ENV === 'production' && !SECRET_KEY) {
-    console.error('FATAL: SECRET_KEY must be set in production (process.env.SECRET_KEY)');
-    process.exit(1);
-}
+// if (process.env.NODE_ENV === 'production' && !SECRET_KEY) {
+//     console.error('FATAL: SECRET_KEY must be set in production (process.env.SECRET_KEY)');
+//     process.exit(1);
+// }
 
 app.use((req, res, next) => {
     console.log(`${req.method} ${req.url}`);
@@ -168,7 +168,7 @@ app.post("/login", async (req, res) => {
 });
 
 
-app.get("/peliculas", verificarToken, async (req, res) => {
+app.get("/peliculas", async (req, res) => {
 
     const peliculas = await Pelicula.findAll();
 
