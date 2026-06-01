@@ -6,17 +6,33 @@ const bcrypt = require("bcrypt");
 const app = express();
 app.use(express.json());
 
-const SECRET_KEY = "mi_clave_super_secreta";
+const SECRET_KEY = process.env.SECRET_KEY;
+
+if (process.env.NODE_ENV === 'production' && !SECRET_KEY) {
+    console.error('FATAL: SECRET_KEY must be set in production (process.env.SECRET_KEY)');
+    process.exit(1);
+}
 
 app.use((req, res, next) => {
     console.log(`${req.method} ${req.url}`);
     next();
 });
 
-const sequelize = new Sequelize({
-    dialect: "sqlite",
-    storage: "./database.sqlite"
-});
+const connectionOptions = {
+    dialect: 'postgres',
+    protocol: 'postgres'
+};
+
+if (process.env.NODE_ENV === 'production' || process.env.DATABASE_SSL === 'true') {
+    connectionOptions.dialectOptions = {
+        ssl: {
+            require: true,
+            rejectUnauthorized: false
+        }
+    };
+}
+
+const sequelize = new Sequelize(process.env.DATABASE_URL, connectionOptions);
 
 const Pelicula = sequelize.define("Pelicula", {
     titulo: {
@@ -68,10 +84,11 @@ function verificarToken(req, res, next) {
     }
 }
 
-(async () => {
+    (async () => {
+
+    await sequelize.authenticate();
 
     await sequelize.sync();
-
     const totalPeliculas = await Pelicula.count();
 
     if (totalPeliculas === 0) {
@@ -159,6 +176,8 @@ app.get("/peliculas", verificarToken, async (req, res) => {
 
 });
 
-app.listen(3000, () => {
-    console.log("Servidor en http://localhost:3000");
+const PORT = process.env.PORT || 3001;
+
+app.listen(PORT, () => {
+    console.log(`Servidor en http://localhost:${PORT}`);
 });
